@@ -1,3 +1,3 @@
-module github.com/idastroem-gmbh/swupdate-grpc
+module github.com/idastroem/swupdatesvc
 
 go 1.17
