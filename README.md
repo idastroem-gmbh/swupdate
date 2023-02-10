@@ -1,0 +1,1 @@
+Here resides the public GRPC interface specification for the idastroem software update service.
