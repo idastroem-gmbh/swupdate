@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-option go_package = "github.com/idastroem-gmbh/swupdate";
+option go_package = "github.com/idastroem/swupdatesvc";
 option java_multiple_files = true;
-option java_package = "de.idastroem.swupdate";
-option java_outer_classname = "SwUpdate";
+option java_package = "de.idastroem.swupdatesvc";
+option java_outer_classname = "SwUpdateSvc";
 
 package swupdate;
 
