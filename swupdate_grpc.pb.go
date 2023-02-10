@@ -4,7 +4,7 @@
 // - protoc             v3.21.12
 // source: swupdate.proto
 
-package swupdate
+package swupdatesvc
 
 import (
 	context "context"
