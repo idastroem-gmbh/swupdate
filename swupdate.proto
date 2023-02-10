@@ -8,21 +8,20 @@ option java_outer_classname = "SwUpdateSvc";
 package swupdate;
 
 service Updater {
-    rpc AnalyzeZipFile(AnalyzeRequest) returns (AnalyzeResponse) {}
+    rpc CheckForUpdate(CheckForUpdateRequest) returns (CheckForUpdateResponse) {}
     rpc ExecuteUpdate(UpdateRequest) returns (stream UpdateResponse) {}
     rpc Reboot(Empty) returns (Empty) {}
 }
 
 message Empty {
-
 }
 
-message AnalyzeRequest {
-    string zipFileLocation = 1;
+message CheckForUpdateRequest {
+    string updateUrl = 1;
     string password = 2;
 }
 
-message AnalyzeResponse {
+message CheckForUpdateResponse {
     string engineVersion = 1;
     bool isOkay = 2;
     string errorMessage = 3;
@@ -35,4 +34,5 @@ message UpdateRequest {
 message UpdateResponse {
     float progress = 1;
     bool done = 2;
+    string msg = 3;
 }
