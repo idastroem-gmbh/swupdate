@@ -8,7 +8,7 @@ option java_outer_classname = "SwUpdateSvc";
 package swupdate;
 
 service Updater {
-    rpc CheckForUpdate(CheckForUpdateRequest) returns (CheckForUpdateResponse) {}
+    rpc CheckForUpdate(CheckForUpdateRequest) returns (stream CheckForUpdateResponse) {}
     rpc ExecuteUpdate(UpdateRequest) returns (stream UpdateResponse) {}
     rpc Reboot(Empty) returns (Empty) {}
 }
