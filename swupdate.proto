@@ -8,7 +8,7 @@ option java_outer_classname = "SwUpdateSvc";
 package swupdate;
 
 service Updater {
-    rpc CheckForUpdate(CheckForUpdateRequest) returns (stream CheckForUpdateResponse) {}
+    rpc CheckForUpdate(CheckForUpdateRequest) returns (CheckForUpdateResponse) {}
     rpc ExecuteUpdate(UpdateRequest) returns (stream UpdateResponse) {}
     rpc Reboot(Empty) returns (Empty) {}
 }
@@ -23,16 +23,19 @@ message CheckForUpdateRequest {
 
 message CheckForUpdateResponse {
     string engineVersion = 1;
-    bool isOkay = 2;
-    string errorMessage = 3;
-    map<string,string> userData = 4;
+    bool isError = 2;
+    string message = 3;
+    string currentVersion = 4;
+    map<string,string> userData = 5;
 }
 
 message UpdateRequest {
+    string newVersion = 1;
 }
 
 message UpdateResponse {
     float progress = 1;
-    bool done = 2;
-    string msg = 3;
+    bool isDone = 2;
+    bool isError = 3;
+    string messsage = 4;
 }

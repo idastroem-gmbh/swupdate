@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type UpdaterClient interface {
-	CheckForUpdate(ctx context.Context, in *CheckForUpdateRequest, opts ...grpc.CallOption) (Updater_CheckForUpdateClient, error)
+	CheckForUpdate(ctx context.Context, in *CheckForUpdateRequest, opts ...grpc.CallOption) (*CheckForUpdateResponse, error)
 	ExecuteUpdate(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (Updater_ExecuteUpdateClient, error)
 	Reboot(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
 }
@@ -35,40 +35,17 @@ func NewUpdaterClient(cc grpc.ClientConnInterface) UpdaterClient {
 	return &updaterClient{cc}
 }
 
-func (c *updaterClient) CheckForUpdate(ctx context.Context, in *CheckForUpdateRequest, opts ...grpc.CallOption) (Updater_CheckForUpdateClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Updater_ServiceDesc.Streams[0], "/swupdate.Updater/CheckForUpdate", opts...)
+func (c *updaterClient) CheckForUpdate(ctx context.Context, in *CheckForUpdateRequest, opts ...grpc.CallOption) (*CheckForUpdateResponse, error) {
+	out := new(CheckForUpdateResponse)
+	err := c.cc.Invoke(ctx, "/swupdate.Updater/CheckForUpdate", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &updaterCheckForUpdateClient{stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-type Updater_CheckForUpdateClient interface {
-	Recv() (*CheckForUpdateResponse, error)
-	grpc.ClientStream
-}
-
-type updaterCheckForUpdateClient struct {
-	grpc.ClientStream
-}
-
-func (x *updaterCheckForUpdateClient) Recv() (*CheckForUpdateResponse, error) {
-	m := new(CheckForUpdateResponse)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
+	return out, nil
 }
 
 func (c *updaterClient) ExecuteUpdate(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (Updater_ExecuteUpdateClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Updater_ServiceDesc.Streams[1], "/swupdate.Updater/ExecuteUpdate", opts...)
+	stream, err := c.cc.NewStream(ctx, &Updater_ServiceDesc.Streams[0], "/swupdate.Updater/ExecuteUpdate", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +89,7 @@ func (c *updaterClient) Reboot(ctx context.Context, in *Empty, opts ...grpc.Call
 // All implementations must embed UnimplementedUpdaterServer
 // for forward compatibility
 type UpdaterServer interface {
-	CheckForUpdate(*CheckForUpdateRequest, Updater_CheckForUpdateServer) error
+	CheckForUpdate(context.Context, *CheckForUpdateRequest) (*CheckForUpdateResponse, error)
 	ExecuteUpdate(*UpdateRequest, Updater_ExecuteUpdateServer) error
 	Reboot(context.Context, *Empty) (*Empty, error)
 	mustEmbedUnimplementedUpdaterServer()
@@ -122,8 +99,8 @@ type UpdaterServer interface {
 type UnimplementedUpdaterServer struct {
 }
 
-func (UnimplementedUpdaterServer) CheckForUpdate(*CheckForUpdateRequest, Updater_CheckForUpdateServer) error {
-	return status.Errorf(codes.Unimplemented, "method CheckForUpdate not implemented")
+func (UnimplementedUpdaterServer) CheckForUpdate(context.Context, *CheckForUpdateRequest) (*CheckForUpdateResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckForUpdate not implemented")
 }
 func (UnimplementedUpdaterServer) ExecuteUpdate(*UpdateRequest, Updater_ExecuteUpdateServer) error {
 	return status.Errorf(codes.Unimplemented, "method ExecuteUpdate not implemented")
@@ -144,25 +121,22 @@ func RegisterUpdaterServer(s grpc.ServiceRegistrar, srv UpdaterServer) {
 	s.RegisterService(&Updater_ServiceDesc, srv)
 }
 
-func _Updater_CheckForUpdate_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(CheckForUpdateRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
+func _Updater_CheckForUpdate_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckForUpdateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
 	}
-	return srv.(UpdaterServer).CheckForUpdate(m, &updaterCheckForUpdateServer{stream})
-}
-
-type Updater_CheckForUpdateServer interface {
-	Send(*CheckForUpdateResponse) error
-	grpc.ServerStream
-}
-
-type updaterCheckForUpdateServer struct {
-	grpc.ServerStream
-}
-
-func (x *updaterCheckForUpdateServer) Send(m *CheckForUpdateResponse) error {
-	return x.ServerStream.SendMsg(m)
+	if interceptor == nil {
+		return srv.(UpdaterServer).CheckForUpdate(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/swupdate.Updater/CheckForUpdate",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UpdaterServer).CheckForUpdate(ctx, req.(*CheckForUpdateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _Updater_ExecuteUpdate_Handler(srv interface{}, stream grpc.ServerStream) error {
@@ -212,16 +186,15 @@ var Updater_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*UpdaterServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "CheckForUpdate",
+			Handler:    _Updater_CheckForUpdate_Handler,
+		},
+		{
 			MethodName: "Reboot",
 			Handler:    _Updater_Reboot_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
-		{
-			StreamName:    "CheckForUpdate",
-			Handler:       _Updater_CheckForUpdate_Handler,
-			ServerStreams: true,
-		},
 		{
 			StreamName:    "ExecuteUpdate",
 			Handler:       _Updater_ExecuteUpdate_Handler,
