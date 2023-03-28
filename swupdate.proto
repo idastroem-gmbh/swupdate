@@ -26,7 +26,8 @@ message CheckForUpdateResponse {
     bool isError = 2;
     string message = 3;
     string currentVersion = 4;
-    map<string,string> userData = 5;
+    string availableVersion = 5;
+    map<string,string> userData = 6;
 }
 
 message UpdateRequest {
