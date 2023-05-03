@@ -19,6 +19,7 @@ message Empty {
 message CheckForUpdateRequest {
     string updateUrl = 1;
     string password = 2;
+    optional bool shallowCheck = 3;
 }
 
 message CheckForUpdateResponse {
