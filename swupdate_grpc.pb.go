@@ -25,6 +25,8 @@ type UpdaterClient interface {
 	CheckForUpdate(ctx context.Context, in *CheckForUpdateRequest, opts ...grpc.CallOption) (*CheckForUpdateResponse, error)
 	ExecuteUpdate(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (Updater_ExecuteUpdateClient, error)
 	Reboot(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
+	GetStatus(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetStatusResponse, error)
+	Rollback(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*RollbackResponse, error)
 }
 
 type updaterClient struct {
@@ -85,6 +87,24 @@ func (c *updaterClient) Reboot(ctx context.Context, in *Empty, opts ...grpc.Call
 	return out, nil
 }
 
+func (c *updaterClient) GetStatus(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetStatusResponse, error) {
+	out := new(GetStatusResponse)
+	err := c.cc.Invoke(ctx, "/swupdate.Updater/GetStatus", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *updaterClient) Rollback(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*RollbackResponse, error) {
+	out := new(RollbackResponse)
+	err := c.cc.Invoke(ctx, "/swupdate.Updater/Rollback", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UpdaterServer is the server API for Updater service.
 // All implementations must embed UnimplementedUpdaterServer
 // for forward compatibility
@@ -92,6 +112,8 @@ type UpdaterServer interface {
 	CheckForUpdate(context.Context, *CheckForUpdateRequest) (*CheckForUpdateResponse, error)
 	ExecuteUpdate(*UpdateRequest, Updater_ExecuteUpdateServer) error
 	Reboot(context.Context, *Empty) (*Empty, error)
+	GetStatus(context.Context, *Empty) (*GetStatusResponse, error)
+	Rollback(context.Context, *Empty) (*RollbackResponse, error)
 	mustEmbedUnimplementedUpdaterServer()
 }
 
@@ -107,6 +129,12 @@ func (UnimplementedUpdaterServer) ExecuteUpdate(*UpdateRequest, Updater_ExecuteU
 }
 func (UnimplementedUpdaterServer) Reboot(context.Context, *Empty) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Reboot not implemented")
+}
+func (UnimplementedUpdaterServer) GetStatus(context.Context, *Empty) (*GetStatusResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetStatus not implemented")
+}
+func (UnimplementedUpdaterServer) Rollback(context.Context, *Empty) (*RollbackResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Rollback not implemented")
 }
 func (UnimplementedUpdaterServer) mustEmbedUnimplementedUpdaterServer() {}
 
@@ -178,6 +206,42 @@ func _Updater_Reboot_Handler(srv interface{}, ctx context.Context, dec func(inte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Updater_GetStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UpdaterServer).GetStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/swupdate.Updater/GetStatus",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UpdaterServer).GetStatus(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Updater_Rollback_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UpdaterServer).Rollback(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/swupdate.Updater/Rollback",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UpdaterServer).Rollback(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Updater_ServiceDesc is the grpc.ServiceDesc for Updater service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -192,6 +256,14 @@ var Updater_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Reboot",
 			Handler:    _Updater_Reboot_Handler,
+		},
+		{
+			MethodName: "GetStatus",
+			Handler:    _Updater_GetStatus_Handler,
+		},
+		{
+			MethodName: "Rollback",
+			Handler:    _Updater_Rollback_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

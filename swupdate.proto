@@ -11,6 +11,8 @@ service Updater {
     rpc CheckForUpdate(CheckForUpdateRequest) returns (CheckForUpdateResponse) {}
     rpc ExecuteUpdate(UpdateRequest) returns (stream UpdateResponse) {}
     rpc Reboot(Empty) returns (Empty) {}
+    rpc GetStatus(Empty) returns (GetStatusResponse) {}
+    rpc Rollback(Empty) returns (RollbackResponse) {}
 }
 
 message Empty {
@@ -40,4 +42,15 @@ message UpdateResponse {
     bool isDone = 2;
     bool isError = 3;
     string messsage = 4;
+}
+
+// support rollback
+
+message GetStatusResponse {
+    bool shouldRollback = 1;
+}
+
+message RollbackResponse {
+    bool isError = 1;
+    string message = 2;
 }
