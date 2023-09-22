@@ -8,8 +8,8 @@ option java_outer_classname = "SwUpdateSvc";
 package swupdate;
 
 service Updater {
-    rpc CheckForUpdate(CheckForUpdateRequest) returns (CheckForUpdateResponse) {}
-    rpc ExecuteUpdate(UpdateRequest) returns (stream UpdateResponse) {}
+    rpc GetAvailableUpdateBundles(GetAvailableUpdateBundlesRequest) returns (GetAvailableUpdateBundlesResponse) {}
+    rpc InstallUpdateBundle(InstallUpdateBundleRequest) returns (stream InstallUpdateBundleResponse) {}
     rpc Reboot(Empty) returns (Empty) {}
     rpc GetStatus(Empty) returns (GetStatusResponse) {}
     rpc Rollback(Empty) returns (RollbackResponse) {}
@@ -18,26 +18,31 @@ service Updater {
 message Empty {
 }
 
-message CheckForUpdateRequest {
+message GetAvailableUpdateBundlesRequest {
     string updateUrl = 1;
-    string password = 2;
-    optional bool shallowCheck = 3;
 }
 
-message CheckForUpdateResponse {
+message UpdateBundle {
+    string bundleUrl = 1;
+    string bundleVersion = 2;
+    map<string,string> componentVersions = 3;
+    map<string,string> userData = 4;
+}
+
+message GetAvailableUpdateBundlesResponse {
     string engineVersion = 1;
     bool isError = 2;
     string message = 3;
     string currentVersion = 4;
-    string availableVersion = 5;
-    map<string,string> userData = 6;
+    map<string,string> installedComponents = 5;
+    repeated UpdateBundle availableBundles = 6;
 }
 
-message UpdateRequest {
-    string newVersion = 1;
+message InstallUpdateBundleRequest {
+    string bundleUrl = 2;
 }
 
-message UpdateResponse {
+message InstallUpdateBundleResponse {
     float progress = 1;
     bool isDone = 2;
     bool isError = 3;
