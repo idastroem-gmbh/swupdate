@@ -27,6 +27,7 @@ type UpdaterClient interface {
 	Reboot(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Empty, error)
 	GetStatus(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetStatusResponse, error)
 	Rollback(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*RollbackResponse, error)
+	GetClientInformation(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetClientInformationResponse, error)
 }
 
 type updaterClient struct {
@@ -105,6 +106,15 @@ func (c *updaterClient) Rollback(ctx context.Context, in *Empty, opts ...grpc.Ca
 	return out, nil
 }
 
+func (c *updaterClient) GetClientInformation(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetClientInformationResponse, error) {
+	out := new(GetClientInformationResponse)
+	err := c.cc.Invoke(ctx, "/swupdate.Updater/GetClientInformation", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // UpdaterServer is the server API for Updater service.
 // All implementations must embed UnimplementedUpdaterServer
 // for forward compatibility
@@ -114,6 +124,7 @@ type UpdaterServer interface {
 	Reboot(context.Context, *Empty) (*Empty, error)
 	GetStatus(context.Context, *Empty) (*GetStatusResponse, error)
 	Rollback(context.Context, *Empty) (*RollbackResponse, error)
+	GetClientInformation(context.Context, *Empty) (*GetClientInformationResponse, error)
 	mustEmbedUnimplementedUpdaterServer()
 }
 
@@ -135,6 +146,9 @@ func (UnimplementedUpdaterServer) GetStatus(context.Context, *Empty) (*GetStatus
 }
 func (UnimplementedUpdaterServer) Rollback(context.Context, *Empty) (*RollbackResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Rollback not implemented")
+}
+func (UnimplementedUpdaterServer) GetClientInformation(context.Context, *Empty) (*GetClientInformationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetClientInformation not implemented")
 }
 func (UnimplementedUpdaterServer) mustEmbedUnimplementedUpdaterServer() {}
 
@@ -242,6 +256,24 @@ func _Updater_Rollback_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Updater_GetClientInformation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UpdaterServer).GetClientInformation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/swupdate.Updater/GetClientInformation",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UpdaterServer).GetClientInformation(ctx, req.(*Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Updater_ServiceDesc is the grpc.ServiceDesc for Updater service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -264,6 +296,10 @@ var Updater_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Rollback",
 			Handler:    _Updater_Rollback_Handler,
+		},
+		{
+			MethodName: "GetClientInformation",
+			Handler:    _Updater_GetClientInformation_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

@@ -13,6 +13,7 @@ service Updater {
     rpc Reboot(Empty) returns (Empty) {}
     rpc GetStatus(Empty) returns (GetStatusResponse) {}
     rpc Rollback(Empty) returns (RollbackResponse) {}
+    rpc GetClientInformation(Empty) returns (GetClientInformationResponse) {}
 }
 
 message Empty {
@@ -58,4 +59,13 @@ message GetStatusResponse {
 message RollbackResponse {
     bool isError = 1;
     string message = 2;
+}
+
+message GetClientInformationResponse {
+    string source = 1;
+    string bootStrap = 2;
+    string tmpDir = 3;
+    string customer = 4;
+    string product = 5;
+    map<string,string> infos = 6;
 }
