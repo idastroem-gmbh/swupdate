@@ -14,7 +14,7 @@ service Updater {
     rpc GetStatus(Empty) returns (GetStatusResponse) {}
     rpc Rollback(Empty) returns (RollbackResponse) {}
     rpc GetClientInformation(Empty) returns (GetClientInformationResponse) {}
-    rpc GetComponentVersions(Empty) returns (GetComponentVersionsResponse) {}
+    rpc GetInstalledBundleInformation(Empty) returns (GetInstalledBundleInformationResponse) {}
 }
 
 message Empty {
@@ -71,6 +71,7 @@ message GetClientInformationResponse {
     map<string,string> infos = 6;
 }
 
-message GetComponentVersionsResponse {
-    map<string,string> versions = 1;
+message GetInstalledBundleInformationResponse {
+    map<string,string> componentVersions = 1;
+    map<string,string> userInformation = 2;
 }

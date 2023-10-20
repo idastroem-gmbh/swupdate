@@ -28,7 +28,7 @@ type UpdaterClient interface {
 	GetStatus(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetStatusResponse, error)
 	Rollback(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*RollbackResponse, error)
 	GetClientInformation(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetClientInformationResponse, error)
-	GetComponentVersions(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetComponentVersionsResponse, error)
+	GetInstalledBundleInformation(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetInstalledBundleInformationResponse, error)
 }
 
 type updaterClient struct {
@@ -116,9 +116,9 @@ func (c *updaterClient) GetClientInformation(ctx context.Context, in *Empty, opt
 	return out, nil
 }
 
-func (c *updaterClient) GetComponentVersions(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetComponentVersionsResponse, error) {
-	out := new(GetComponentVersionsResponse)
-	err := c.cc.Invoke(ctx, "/swupdate.Updater/GetComponentVersions", in, out, opts...)
+func (c *updaterClient) GetInstalledBundleInformation(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetInstalledBundleInformationResponse, error) {
+	out := new(GetInstalledBundleInformationResponse)
+	err := c.cc.Invoke(ctx, "/swupdate.Updater/GetInstalledBundleInformation", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -135,7 +135,7 @@ type UpdaterServer interface {
 	GetStatus(context.Context, *Empty) (*GetStatusResponse, error)
 	Rollback(context.Context, *Empty) (*RollbackResponse, error)
 	GetClientInformation(context.Context, *Empty) (*GetClientInformationResponse, error)
-	GetComponentVersions(context.Context, *Empty) (*GetComponentVersionsResponse, error)
+	GetInstalledBundleInformation(context.Context, *Empty) (*GetInstalledBundleInformationResponse, error)
 	mustEmbedUnimplementedUpdaterServer()
 }
 
@@ -161,8 +161,8 @@ func (UnimplementedUpdaterServer) Rollback(context.Context, *Empty) (*RollbackRe
 func (UnimplementedUpdaterServer) GetClientInformation(context.Context, *Empty) (*GetClientInformationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetClientInformation not implemented")
 }
-func (UnimplementedUpdaterServer) GetComponentVersions(context.Context, *Empty) (*GetComponentVersionsResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetComponentVersions not implemented")
+func (UnimplementedUpdaterServer) GetInstalledBundleInformation(context.Context, *Empty) (*GetInstalledBundleInformationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetInstalledBundleInformation not implemented")
 }
 func (UnimplementedUpdaterServer) mustEmbedUnimplementedUpdaterServer() {}
 
@@ -288,20 +288,20 @@ func _Updater_GetClientInformation_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Updater_GetComponentVersions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Updater_GetInstalledBundleInformation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(UpdaterServer).GetComponentVersions(ctx, in)
+		return srv.(UpdaterServer).GetInstalledBundleInformation(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/swupdate.Updater/GetComponentVersions",
+		FullMethod: "/swupdate.Updater/GetInstalledBundleInformation",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(UpdaterServer).GetComponentVersions(ctx, req.(*Empty))
+		return srv.(UpdaterServer).GetInstalledBundleInformation(ctx, req.(*Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -334,8 +334,8 @@ var Updater_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _Updater_GetClientInformation_Handler,
 		},
 		{
-			MethodName: "GetComponentVersions",
-			Handler:    _Updater_GetComponentVersions_Handler,
+			MethodName: "GetInstalledBundleInformation",
+			Handler:    _Updater_GetInstalledBundleInformation_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
