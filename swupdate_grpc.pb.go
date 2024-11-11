@@ -27,6 +27,7 @@ const (
 	Updater_GetClientInformation_FullMethodName          = "/swupdate.Updater/GetClientInformation"
 	Updater_GetInstalledBundleInformation_FullMethodName = "/swupdate.Updater/GetInstalledBundleInformation"
 	Updater_ExecuteMonitoredCommand_FullMethodName       = "/swupdate.Updater/ExecuteMonitoredCommand"
+	Updater_TerminateMonitoredCommand_FullMethodName     = "/swupdate.Updater/TerminateMonitoredCommand"
 )
 
 // UpdaterClient is the client API for Updater service.
@@ -40,7 +41,8 @@ type UpdaterClient interface {
 	Rollback(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*RollbackResponse, error)
 	GetClientInformation(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetClientInformationResponse, error)
 	GetInstalledBundleInformation(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetInstalledBundleInformationResponse, error)
-	ExecuteMonitoredCommand(ctx context.Context, in *ExecuteMonitoredCommandRequest, opts ...grpc.CallOption) (*ExecuteMonitoredCommandResponse, error)
+	ExecuteMonitoredCommand(ctx context.Context, in *ExecuteMonitoredCommandRequest, opts ...grpc.CallOption) (*Empty, error)
+	TerminateMonitoredCommand(ctx context.Context, in *TerminateMonitoredCommandRequest, opts ...grpc.CallOption) (*Empty, error)
 }
 
 type updaterClient struct {
@@ -137,9 +139,18 @@ func (c *updaterClient) GetInstalledBundleInformation(ctx context.Context, in *E
 	return out, nil
 }
 
-func (c *updaterClient) ExecuteMonitoredCommand(ctx context.Context, in *ExecuteMonitoredCommandRequest, opts ...grpc.CallOption) (*ExecuteMonitoredCommandResponse, error) {
-	out := new(ExecuteMonitoredCommandResponse)
+func (c *updaterClient) ExecuteMonitoredCommand(ctx context.Context, in *ExecuteMonitoredCommandRequest, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
 	err := c.cc.Invoke(ctx, Updater_ExecuteMonitoredCommand_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *updaterClient) TerminateMonitoredCommand(ctx context.Context, in *TerminateMonitoredCommandRequest, opts ...grpc.CallOption) (*Empty, error) {
+	out := new(Empty)
+	err := c.cc.Invoke(ctx, Updater_TerminateMonitoredCommand_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +168,8 @@ type UpdaterServer interface {
 	Rollback(context.Context, *Empty) (*RollbackResponse, error)
 	GetClientInformation(context.Context, *Empty) (*GetClientInformationResponse, error)
 	GetInstalledBundleInformation(context.Context, *Empty) (*GetInstalledBundleInformationResponse, error)
-	ExecuteMonitoredCommand(context.Context, *ExecuteMonitoredCommandRequest) (*ExecuteMonitoredCommandResponse, error)
+	ExecuteMonitoredCommand(context.Context, *ExecuteMonitoredCommandRequest) (*Empty, error)
+	TerminateMonitoredCommand(context.Context, *TerminateMonitoredCommandRequest) (*Empty, error)
 	mustEmbedUnimplementedUpdaterServer()
 }
 
@@ -186,8 +198,11 @@ func (UnimplementedUpdaterServer) GetClientInformation(context.Context, *Empty) 
 func (UnimplementedUpdaterServer) GetInstalledBundleInformation(context.Context, *Empty) (*GetInstalledBundleInformationResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetInstalledBundleInformation not implemented")
 }
-func (UnimplementedUpdaterServer) ExecuteMonitoredCommand(context.Context, *ExecuteMonitoredCommandRequest) (*ExecuteMonitoredCommandResponse, error) {
+func (UnimplementedUpdaterServer) ExecuteMonitoredCommand(context.Context, *ExecuteMonitoredCommandRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ExecuteMonitoredCommand not implemented")
+}
+func (UnimplementedUpdaterServer) TerminateMonitoredCommand(context.Context, *TerminateMonitoredCommandRequest) (*Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TerminateMonitoredCommand not implemented")
 }
 func (UnimplementedUpdaterServer) mustEmbedUnimplementedUpdaterServer() {}
 
@@ -349,6 +364,24 @@ func _Updater_ExecuteMonitoredCommand_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Updater_TerminateMonitoredCommand_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TerminateMonitoredCommandRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(UpdaterServer).TerminateMonitoredCommand(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Updater_TerminateMonitoredCommand_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(UpdaterServer).TerminateMonitoredCommand(ctx, req.(*TerminateMonitoredCommandRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Updater_ServiceDesc is the grpc.ServiceDesc for Updater service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -383,6 +416,10 @@ var Updater_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ExecuteMonitoredCommand",
 			Handler:    _Updater_ExecuteMonitoredCommand_Handler,
+		},
+		{
+			MethodName: "TerminateMonitoredCommand",
+			Handler:    _Updater_TerminateMonitoredCommand_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

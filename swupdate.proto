@@ -15,17 +15,17 @@ service Updater {
     rpc Rollback(Empty) returns (RollbackResponse) {}
     rpc GetClientInformation(Empty) returns (GetClientInformationResponse) {}
     rpc GetInstalledBundleInformation(Empty) returns (GetInstalledBundleInformationResponse) {}
-    rpc ExecuteMonitoredCommand(ExecuteMonitoredCommandRequest) returns (ExecuteMonitoredCommandResponse) {}
+    rpc ExecuteMonitoredCommand(ExecuteMonitoredCommandRequest) returns (Empty) {}
+    rpc TerminateMonitoredCommand(TerminateMonitoredCommandRequest) returns (Empty) {}
+}
+
+message TerminateMonitoredCommandRequest {
+    string command = 1; 
 }
 
 message ExecuteMonitoredCommandRequest {
     string command = 1;    
     repeated string parameters = 2;
-}
-
-message ExecuteMonitoredCommandResponse {
-    string output = 2;
-    bool success = 3;
 }
 
 message Empty {
