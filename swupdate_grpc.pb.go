@@ -28,6 +28,7 @@ const (
 	Updater_GetInstalledBundleInformation_FullMethodName = "/swupdate.Updater/GetInstalledBundleInformation"
 	Updater_ExecuteMonitoredCommand_FullMethodName       = "/swupdate.Updater/ExecuteMonitoredCommand"
 	Updater_TerminateMonitoredCommand_FullMethodName     = "/swupdate.Updater/TerminateMonitoredCommand"
+	Updater_GetMonitoredCommandStreams_FullMethodName    = "/swupdate.Updater/GetMonitoredCommandStreams"
 )
 
 // UpdaterClient is the client API for Updater service.
@@ -43,6 +44,7 @@ type UpdaterClient interface {
 	GetInstalledBundleInformation(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*GetInstalledBundleInformationResponse, error)
 	ExecuteMonitoredCommand(ctx context.Context, in *ExecuteMonitoredCommandRequest, opts ...grpc.CallOption) (*Empty, error)
 	TerminateMonitoredCommand(ctx context.Context, in *TerminateMonitoredCommandRequest, opts ...grpc.CallOption) (*Empty, error)
+	GetMonitoredCommandStreams(ctx context.Context, in *GetMonitoredCommandStreamsRequest, opts ...grpc.CallOption) (Updater_GetMonitoredCommandStreamsClient, error)
 }
 
 type updaterClient struct {
@@ -157,6 +159,38 @@ func (c *updaterClient) TerminateMonitoredCommand(ctx context.Context, in *Termi
 	return out, nil
 }
 
+func (c *updaterClient) GetMonitoredCommandStreams(ctx context.Context, in *GetMonitoredCommandStreamsRequest, opts ...grpc.CallOption) (Updater_GetMonitoredCommandStreamsClient, error) {
+	stream, err := c.cc.NewStream(ctx, &Updater_ServiceDesc.Streams[1], Updater_GetMonitoredCommandStreams_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &updaterGetMonitoredCommandStreamsClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type Updater_GetMonitoredCommandStreamsClient interface {
+	Recv() (*GetMonitoredCommandStreamsResponse, error)
+	grpc.ClientStream
+}
+
+type updaterGetMonitoredCommandStreamsClient struct {
+	grpc.ClientStream
+}
+
+func (x *updaterGetMonitoredCommandStreamsClient) Recv() (*GetMonitoredCommandStreamsResponse, error) {
+	m := new(GetMonitoredCommandStreamsResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // UpdaterServer is the server API for Updater service.
 // All implementations must embed UnimplementedUpdaterServer
 // for forward compatibility
@@ -170,6 +204,7 @@ type UpdaterServer interface {
 	GetInstalledBundleInformation(context.Context, *Empty) (*GetInstalledBundleInformationResponse, error)
 	ExecuteMonitoredCommand(context.Context, *ExecuteMonitoredCommandRequest) (*Empty, error)
 	TerminateMonitoredCommand(context.Context, *TerminateMonitoredCommandRequest) (*Empty, error)
+	GetMonitoredCommandStreams(*GetMonitoredCommandStreamsRequest, Updater_GetMonitoredCommandStreamsServer) error
 	mustEmbedUnimplementedUpdaterServer()
 }
 
@@ -203,6 +238,9 @@ func (UnimplementedUpdaterServer) ExecuteMonitoredCommand(context.Context, *Exec
 }
 func (UnimplementedUpdaterServer) TerminateMonitoredCommand(context.Context, *TerminateMonitoredCommandRequest) (*Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method TerminateMonitoredCommand not implemented")
+}
+func (UnimplementedUpdaterServer) GetMonitoredCommandStreams(*GetMonitoredCommandStreamsRequest, Updater_GetMonitoredCommandStreamsServer) error {
+	return status.Errorf(codes.Unimplemented, "method GetMonitoredCommandStreams not implemented")
 }
 func (UnimplementedUpdaterServer) mustEmbedUnimplementedUpdaterServer() {}
 
@@ -382,6 +420,27 @@ func _Updater_TerminateMonitoredCommand_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Updater_GetMonitoredCommandStreams_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(GetMonitoredCommandStreamsRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(UpdaterServer).GetMonitoredCommandStreams(m, &updaterGetMonitoredCommandStreamsServer{stream})
+}
+
+type Updater_GetMonitoredCommandStreamsServer interface {
+	Send(*GetMonitoredCommandStreamsResponse) error
+	grpc.ServerStream
+}
+
+type updaterGetMonitoredCommandStreamsServer struct {
+	grpc.ServerStream
+}
+
+func (x *updaterGetMonitoredCommandStreamsServer) Send(m *GetMonitoredCommandStreamsResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // Updater_ServiceDesc is the grpc.ServiceDesc for Updater service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -426,6 +485,11 @@ var Updater_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "InstallUpdateBundle",
 			Handler:       _Updater_InstallUpdateBundle_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "GetMonitoredCommandStreams",
+			Handler:       _Updater_GetMonitoredCommandStreams_Handler,
 			ServerStreams: true,
 		},
 	},

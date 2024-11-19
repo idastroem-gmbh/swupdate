@@ -17,6 +17,18 @@ service Updater {
     rpc GetInstalledBundleInformation(Empty) returns (GetInstalledBundleInformationResponse) {}
     rpc ExecuteMonitoredCommand(ExecuteMonitoredCommandRequest) returns (Empty) {}
     rpc TerminateMonitoredCommand(TerminateMonitoredCommandRequest) returns (Empty) {}
+    rpc GetMonitoredCommandStreams(GetMonitoredCommandStreamsRequest) returns (stream GetMonitoredCommandStreamsResponse) {}
+}
+
+message GetMonitoredCommandStreamsRequest {
+    string command = 1; 
+    int32 stdoutOffset = 2;
+    int32 stderrOffset = 3;
+}
+
+message GetMonitoredCommandStreamsResponse {
+    string stdout = 1; 
+    string stderr = 2; 
 }
 
 message TerminateMonitoredCommandRequest {
